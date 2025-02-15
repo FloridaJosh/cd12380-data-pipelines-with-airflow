@@ -8,8 +8,13 @@ from operators import (StageToRedshiftOperator, LoadFactOperator,
 from helpers import SqlQueries
 
 default_args = {
-    'owner': 'udacity',
+    'owner': 'Josh',
     'start_date': pendulum.now(),
+    'depends_on_past': False,               # No dependencies of past runs
+    'retries': 3,                           # Tasks are retried three times on failure
+    'retry_delay': timedelta(minutes=5),    # Retries occur every five minutes
+    'catchup': False,                       # Catchup is turned off
+    'email_on_retry': False                 # No email on retry
 }
 
 @dag(
@@ -52,5 +57,18 @@ def final_project():
     run_quality_checks = DataQualityOperator(
         task_id='Run_data_quality_checks',
     )
+
+    end_operator = DummyOperator(task_id='End_execution')
+
+    # Configure dependencies to match the flow depicted in the image in the instructions
+    start_operator >> [stage_events_to_redshift, stage_songs_to_redshift]
+    stage_events_to_redshift >> load_songplays_table
+    stage_songs_to_redshift >> load_songplays_table
+    load_songplays_table >> [load_artist_dimension_table, load_song_dimension_table, load_user_dimension_table, load_time_dimension_table]
+    load_artist_dimension_table >> run_quality_checks
+    load_song_dimension_table >> run_quality_checks
+    load_time_dimension_table >> run_quality_checks
+    load_user_dimension_table >> run_quality_checks
+    run_quality_checks >> end_operator
 
 final_project_dag = final_project()
