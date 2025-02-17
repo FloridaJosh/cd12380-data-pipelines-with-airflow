@@ -27,7 +27,10 @@ class LoadDimensionOperator(BaseOperator):
             self.log.info(f"Truncating table {self.table} before loading")
             redshift.run(f"TRUNCATE TABLE {self.table}")
 
+        # Generate and log SQL
+        insert_query = f"INSERT INTO {self.table} {self.sql_query}"
+        self.log.info(f"Running query: {insert_query}")
+
         # Run query to load table
-        self.log.info(f"Running SQL query: {self.sql_query}")
-        redshift.run(self.sql_query)
+        redshift.run(insert_query)
         self.log.info(f"Dimension table {self.table} loaded successfully.")

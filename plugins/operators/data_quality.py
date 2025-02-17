@@ -18,12 +18,18 @@ class DataQualityOperator(BaseOperator):
     def execute(self, context):
         self.log.info("Starting data quality checks")
         redshift = PostgresHook(postgres_conn_id=self.redshift_conn_id)
+        
+        # Initialize counter variable and list for failing tests
         error_count = 0
         failing_tests = []
 
+        # Iterate through each test passed into the operator
         for test in self.tests:
+            # Get the SQL and expected result for that SQL
             sql = test.get("sql")
             expected = test.get("expected_result")
+
+            # Log the SQL statement, run it, and compare to expected results
             self.log.info(f"Running data quality test: {sql}")
             records = redshift.get_records(sql)
             if len(records) < 1 or records[0][0] != expected:

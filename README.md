@@ -1,3 +1,31 @@
+# Table of Contents of Completed Project Files
+
+The key files used in this airflow project are listed below:
+
+| **Link** | **Description** |
+|----------|-----------------|
+| [`docker-compose.yaml`](./docker-compose.yaml) | File used to create local Airflow cluster.  Modified to remove examples. |
+| [`/dags/final_project.py`](./dags/final_project.py) | Completed dag file. Calls custom operators to extract data from S3 buckets, load to Redshift data warehouse, and perform data quality testing. |
+| [`/plugins/operators/create_tables_operator.py`](./plugins/operators/create_tables_operator.py) | Custom operator used for send SQL statements to Redshift to create tables. |
+| [`/plugins/helpers/create_tables.sql`](./plugins/helpers/create_tables.sql) | SQL statements used by custom operator to create tables in Redshift database. |
+| [`/plugins/operators/stage_redshift.py`](./plugins/operators/stage_redshift.py) | Custom operator to read data from S3 bucket and write to Redshift staging tables.  Used by two tasks in the dag to load songs and events. |
+| [`/plugins/operators/load_fact.py`](./plugins/operators/load_fact.py) | Custom operator to load the fact table using SQL passed by the dag.  Includes parameter that allows the operator to be used in either append mode or truncate and reload mode. |
+| [`/plugins/operators/load_dimension.py`](./plugins/operators/load_dimension.py) | Custom operator to load the dimension tables using SQL passed by the dag.  Includes parameter that allows the operator to be used in either append mode or truncate and reload mode. |
+| [`/plugins/operators/data_quality.py`](./plugins/operators/data_quality.py) | Custom operator to run data quality checks.  The dag passes a list of tests when the operator is called along with an expected result.  Operator fails if actual results don't match expected.  |
+| [`/plugins/helpers/create_tables.sql`](./plugins/helpers/create_tables.sql) | SQL script for creating tables. |
+
+This project also requires that you have two connections setup in Airflow:
+* AWS connection named "aws_credentials"
+* Redshift connection named "redshift"
+
+
+The original ReadMe from the project assignment is below.
+
+
+---
+---
+
+
 # Data Pipelines with Airflow
 
 Welcome to the Data Pipelines with Airflow project! This endeavor will provide you with a solid understanding of Apache Airflow's core concepts. Your task involves creating custom operators to execute essential functions like staging data, populating a data warehouse, and validating data through the pipeline.
